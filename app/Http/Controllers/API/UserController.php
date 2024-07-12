@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\API\CreateUserRequest;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Hash;

@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\VoucherCodeController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\VoucherCodeController;
 
 Route::post('/user', [UserController::class, 'create']);
 

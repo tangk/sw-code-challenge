@@ -32,7 +32,9 @@ class UserController extends Controller
                 'password' => Hash::make($request->getPassword()),
             ]);
 
-            $voucherCode = $this->voucherCodeService->create($user->id);
+            auth()->login($user);
+
+            $voucherCode = $this->voucherCodeService->create();
 
             Mail::to($user->email)->send(new WelcomeEmail($voucherCode, $user));
 

@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\VoucherCode;
+use App\Services\API\VoucherCodeService;
 use Exception;
-use Illuminate\Support\Str;
+use Illuminate\Http\JsonResponse;
 
 class VoucherCodeController extends Controller
 {
-    public function create()
+    private VoucherCodeService $voucherCodeService;
+
+    public function __construct(VoucherCodeService $voucherCodeService)
+    {
+        parent::__construct();
+        $this->voucherCodeService = $voucherCodeService;
+    }
+    public function create(): JsonResponse
     {
         $user = auth()->user();
-
         try {
-            $code = Str::random(5);
-            $voucherCode = VoucherCode::create(['user_id' => $user->id, 'code' => $code]);
-            $this->response['data'] = $voucherCode->toArray();
+            $this->response['data'] = $this->voucherCodeService->create($user->id);
         } catch (Exception $e) {
             $this->response = [ 'error' => $e->getMessage(), 'code' => 500,];
         }

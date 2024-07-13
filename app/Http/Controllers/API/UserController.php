@@ -3,21 +3,18 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Requests\API\CreateUserRequest;
-use App\Models\User;
-use App\Services\API\VoucherCodeService;
+use App\Http\Requests\API\LoginUserRequest;
+use App\Http\Resources\UserResource;
+use App\Services\API\UserService;
 use Exception;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\WelcomeEmail;
 
 class UserController extends Controller
 {
-    private VoucherCodeService $voucherCodeService;
+    private UserService $userService;
 
-    public function __construct(VoucherCodeService $voucherCodeService)
+    public function __construct(UserService $userService)
     {
-        parent::__construct();
-        $this->voucherCodeService = $voucherCodeService;
+        $this->userService = $userService;
     }
 
     public function create(CreateUserRequest $request)
@@ -25,24 +22,24 @@ class UserController extends Controller
         $request->validated();
 
         try {
-            $user = User::create([
-                'username' => $request->getUserName(),
-                'first_name' => $request->getFirstName(),
-                'email' => $request->getEmail(),
-                'password' => Hash::make($request->getPassword()),
-            ]);
+            $data = $this->userService->create($request->all());
 
-            auth()->login($user);
-
-            $voucherCode = $this->voucherCodeService->create();
-
-            Mail::to($user->email)->send(new WelcomeEmail($voucherCode, $user));
-
-            $this->response['data'] = $user->toArray();
+            return $this->sendResponse(new UserResource($data), 201);
         } catch (Exception $e) {
-            $this->response = [ 'error' => $e->getMessage(), 'code' => 500,];
+            return $this->sendResponse($e->getMessage(), $e->getCode());
         }
+    }
 
-        return response()->json($this->response, $this->response['code']);
+    public function login(LoginUserRequest $request)
+    {
+        $request->validated();
+
+        try {
+            $data = $this->userService->login($request->all());
+
+            return $this->sendResponse($data, 200);
+        } catch (Exception $e) {
+            return $this->sendResponse($e->getMessage(), $e->getCode());
+        }
     }
 }

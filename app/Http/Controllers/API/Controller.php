@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Http\JsonResponse;
+
 abstract class Controller
 {
-    public array $response;
-
-    public function __construct()
+    protected function sendResponse($data, int $code = 200): JsonResponse
     {
-        $this->response = ['code' => 200];
+        $response = ($code >= 200 && $code < 300) ? ['data' => $data] : ['error' => $data];
+        return response()->json($response, $code ?? 500);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\API\VoucherCodeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/user', [UserController::class, 'create']);
+Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/voucher', [VoucherCodeController::class, 'index']);

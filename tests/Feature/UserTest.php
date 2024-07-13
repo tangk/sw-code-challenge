@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -28,9 +28,22 @@ class UserTest extends TestCase
     {
         $response = $this->postJson('/api/user', $this->validUserData);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $response->assertJsonStructure(['data']);
         $this->assertDatabaseHas('users', ['email' => $this->validUserData['email']]);
+    }
+
+    public function test_user_registration_exception(): void
+    {
+        $this->mock(\App\Services\API\UserService::class, function ($mock) {
+            $mock->shouldReceive('create')
+                ->andThrow(new \Exception('Error', 500));
+        });
+
+        $response = $this->postJson('/api/user', $this->validUserData);
+
+        $response->assertStatus(500);
+        $response->assertJsonStructure(['error']);
     }
 
     public function test_user_registration_with_invalid_data(): void
@@ -38,7 +51,7 @@ class UserTest extends TestCase
         $response = $this->postJson('/api/user', array_merge($this->validUserData, ['email' => 'invalid']));
 
         $response->assertStatus(422);
-        $response->assertJsonStructure(['message', 'errors']);
+        $response->assertJsonStructure(['error']);
     }
 
     public function test_user_registration_with_existing_email(): void
@@ -53,7 +66,7 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonStructure(['message', 'errors']);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseCount('users', 1);
     }
 
@@ -69,7 +82,7 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonStructure(['message', 'errors']);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseCount('users', 1);
     }
 
@@ -85,7 +98,7 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonStructure(['message', 'errors']);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseCount('users', 1);
     }
 
@@ -98,7 +111,51 @@ class UserTest extends TestCase
         ]);
 
         $response->assertStatus(422);
-        $response->assertJsonStructure(['message', 'errors']);
+        $response->assertJsonStructure(['error']);
         $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_user_login(): void
+    {
+        $user = User::factory()->create(['password' => Hash::make('password')]);
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['data']);
+    }
+
+    public function test_user_login_with_invalid_credentials(): void
+    {
+        $user = User::factory()->create(['password' => Hash::make('password')]);
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'invalid',
+        ]);
+
+        $response->assertStatus(401);
+        $response->assertJsonStructure(['error']);
+    }
+
+    public function test_user_login_exception(): void
+    {
+        $user = User::factory()->create(['password' => Hash::make('password')]);
+
+        $this->mock(\App\Services\API\UserService::class, function ($mock) {
+            $mock->shouldReceive('login')
+                ->andThrow(new \Exception('Error', 500));
+        });
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(500);
+        $response->assertJsonStructure(['error']);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Services\API;
 
 use App\Exceptions\VoucherCodeLimitReachedException;
 use App\Exceptions\VoucherCodeNotFoundException;
-use App\Models\User;
 use App\Models\VoucherCode;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Str;
@@ -20,33 +19,36 @@ class VoucherCodeService
     public function create(): VoucherCode
     {
         $user = auth()->user();
-        $count = $user->voucherCodes()->count();
-        if ($count > self::MAX_VOUCHER_CODES) {
+        $count = $user->voucherCodes->count();
+
+        if ($count >= self::MAX_VOUCHER_CODES) {
             throw new VoucherCodeLimitReachedException();
         }
-        $code = Str::random(self::VOUCHER_CODE_LENGTH);
+
+        do {
+            $code = strtoupper(Str::random(self::VOUCHER_CODE_LENGTH));
+        } while ($user->voucherCodes()->where('code', $code)->exists());
+
         return $user->voucherCodes()->create(['code' => $code]);
     }
 
     /**
      * @throws VoucherCodeNotFoundException
      */
-    public function delete(int $id): int
+    public function delete(int $id): bool
     {
         $user = auth()->user();
         try {
             $voucherCode = $user->voucherCodes()->findOrFail($id);
-            $voucherCode->delete();
+            return $voucherCode->delete();
         } catch (ModelNotFoundException $e) {
             throw new VoucherCodeNotFoundException();
         }
-
-        return $id;
     }
 
-    public function index(): array
+    public function index(): \Illuminate\Database\Eloquent\Collection
     {
         $user = auth()->user();
-        return $user->voucherCodes()->get()->toArray();
+        return $user->voucherCodes;
     }
 }

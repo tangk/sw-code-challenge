@@ -7,39 +7,23 @@ use App\Http\Requests\API\LoginUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\API\UserService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    private UserService $userService;
-
-    public function __construct(UserService $userService)
+    public function __construct(private UserService $userService)
     {
-        $this->userService = $userService;
     }
 
-    public function create(CreateUserRequest $request)
+    public function create(CreateUserRequest $request): JsonResponse
     {
-        $request->validated();
-
-        try {
-            $data = $this->userService->create($request->all());
-
-            return $this->sendResponse(new UserResource($data), 201);
-        } catch (Exception $e) {
-            return $this->sendResponse($e->getMessage(), $e->getCode());
-        }
+        $data = $this->userService->create($request->validated());
+        return $this->sendResponse(new UserResource($data), 201);
     }
 
-    public function login(LoginUserRequest $request)
+    public function login(LoginUserRequest $request): JsonResponse
     {
-        $request->validated();
-
-        try {
-            $data = $this->userService->login($request->all());
-
-            return $this->sendResponse($data, 200);
-        } catch (Exception $e) {
-            return $this->sendResponse($e->getMessage(), $e->getCode());
-        }
+        $token = $this->userService->login($request->validated());
+        return $this->sendResponse($token, 200);
     }
 }

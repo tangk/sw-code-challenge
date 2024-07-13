@@ -18,31 +18,19 @@ class VoucherCodeController extends Controller
 
     public function create(): JsonResponse
     {
-        try {
-            $data = $this->voucherCodeService->create();
-            return $this->sendResponse(new VoucherCodeResource($data), 201);
-        } catch (Exception $e) {
-            return $this->sendResponse($e->getMessage(), $e->getCode());
-        }
+        $data = $this->voucherCodeService->create();
+        return $this->sendResponse(new VoucherCodeResource($data), 201);
     }
 
     public function index(): JsonResponse
     {
-        try {
-            $data = $this->voucherCodeService->index();
-            return $this->sendResponse($data, 200);
-        } catch (Exception $e) {
-            return $this->sendResponse($e->getMessage(), $e->getCode());
-        }
+        $data = $this->voucherCodeService->index();
+        return $this->sendResponse(VoucherCodeResource::collection($data), 200);
     }
 
     public function delete(int $id): JsonResponse
     {
-        try {
-            $data = $this->voucherCodeService->delete($id);
-            return $this->sendResponse($data, 204);
-        } catch (Exception $e) {
-            return $this->sendResponse($e->getMessage(), $e->getCode());
-        }
+        $data = $this->voucherCodeService->delete($id);
+        return $this->sendResponse($data, 204);
     }
 }

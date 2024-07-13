@@ -31,4 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 'error' => $exception->getMessage(),
             ], 422);
         });
+        $exceptions->render(function (Throwable $exception) {
+            $statusCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode() ?? 500;
+            $message = $exception->getMessage() ?: 'Server Error';
+            return response()->json(['error' => $message], $statusCode);
+        });
     })->create();

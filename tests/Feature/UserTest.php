@@ -26,7 +26,7 @@ class UserTest extends TestCase
 
     public function test_user_registration(): void
     {
-        $response = $this->postJson('/api/user', $this->validUserData);
+        $response = $this->postJson($this->getApiPrefix() . '/user', $this->validUserData);
 
         $response->assertStatus(201);
         $response->assertJsonStructure(['data']);
@@ -40,7 +40,7 @@ class UserTest extends TestCase
                 ->andThrow(new \Exception('Error', 500));
         });
 
-        $response = $this->postJson('/api/user', $this->validUserData);
+        $response = $this->postJson($this->getApiPrefix() . '/user', $this->validUserData);
 
         $response->assertStatus(500);
         $response->assertJsonStructure(['error']);
@@ -48,7 +48,7 @@ class UserTest extends TestCase
 
     public function test_user_registration_with_invalid_data(): void
     {
-        $response = $this->postJson('/api/user', array_merge($this->validUserData, ['email' => 'invalid']));
+        $response = $this->postJson($this->getApiPrefix() . '/user', array_merge($this->validUserData, ['email' => 'invalid']));
 
         $response->assertStatus(422);
         $response->assertJsonStructure(['error']);
@@ -58,7 +58,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/user', [
+        $response = $this->postJson($this->getApiPrefix() . '/user', [
             'username' => 'testuser2',
             'first_name' => 'Test',
             'email' => $user->email,
@@ -74,7 +74,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/user', [
+        $response = $this->postJson($this->getApiPrefix() . '/user', [
             'username' => $user->username,
             'first_name' => 'Test',
             'email' => 'test2@example.com',
@@ -90,7 +90,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('/api/user', [
+        $response = $this->postJson($this->getApiPrefix() . '/user', [
             'username' => $user->username,
             'first_name' => 'Test',
             'email' => $user->email,
@@ -104,7 +104,7 @@ class UserTest extends TestCase
 
     public function test_user_registration_with_missing_data(): void
     {
-        $response = $this->postJson('/api/user', [
+        $response = $this->postJson($this->getApiPrefix() . '/user', [
             'username' => 'testuser2',
             'first_name' => 'Test',
             'password' => 'password',
@@ -119,7 +119,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson($this->getApiPrefix() . '/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -132,7 +132,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create(['password' => Hash::make('password')]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson($this->getApiPrefix() . '/login', [
             'email' => $user->email,
             'password' => 'invalid',
         ]);
@@ -150,7 +150,7 @@ class UserTest extends TestCase
                 ->andThrow(new \Exception('Error', 500));
         });
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson($this->getApiPrefix() . '/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);

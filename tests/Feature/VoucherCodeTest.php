@@ -17,12 +17,12 @@ class VoucherCodeTest extends TestCase
         $user = User::factory()->create();
         Auth::login($user);
 
-        $response = $this->postJson('/api/voucher');
+        $response = $this->postJson($this->getApiPrefix() . '/voucher');
         $response->assertStatus(201);
         $response->assertJsonStructure(['data']);
         $this->assertDatabaseHas('voucher_codes', ['id' => 1]);
 
-        $response = $this->getJson('/api/voucher');
+        $response = $this->getJson($this->getApiPrefix() . '/voucher');
 
         $response->assertStatus(200);
         $response->assertJsonStructure(['data']);
@@ -38,7 +38,7 @@ class VoucherCodeTest extends TestCase
                 ->andThrow(new \Exception('Error', 500));
         });
 
-        $response = $this->getJson('/api/voucher');
+        $response = $this->getJson($this->getApiPrefix() . '/voucher');
 
         $response->assertStatus(500);
         $response->assertJsonStructure(['error']);
@@ -48,7 +48,7 @@ class VoucherCodeTest extends TestCase
         $user = User::factory()->create();
         Auth::login($user);
 
-        $response = $this->postJson('/api/voucher');
+        $response = $this->postJson($this->getApiPrefix() . '/voucher');
 
         $response->assertStatus(201);
         $response->assertJsonStructure(['data']);
@@ -64,7 +64,7 @@ class VoucherCodeTest extends TestCase
             VoucherCode::factory()->create(['user_id' => $user->id]);
         }
 
-        $response = $this->postJson('/api/voucher');
+        $response = $this->postJson($this->getApiPrefix() . '/voucher');
 
         $response->assertStatus(400);
         $response->assertJsonStructure(['error']);
@@ -72,7 +72,7 @@ class VoucherCodeTest extends TestCase
 
     public function test_create_voucher_code_unauthenticated(): void
     {
-        $response = $this->postJson('/api/voucher');
+        $response = $this->postJson($this->getApiPrefix() . '/voucher');
 
         $response->assertStatus(401);
     }
@@ -82,10 +82,10 @@ class VoucherCodeTest extends TestCase
         $user = User::factory()->create();
         Auth::login($user);
 
-        $this->postJson('/api/voucher');
+        $this->postJson($this->getApiPrefix() . '/voucher');
         $this->assertDatabaseHas('voucher_codes', ['id' => 1]);
 
-        $response = $this->deleteJson('/api/voucher/1');
+        $response = $this->deleteJson($this->getApiPrefix() . '/voucher/1');
 
         $response->assertStatus(204);
         $response->assertNoContent();
@@ -94,7 +94,7 @@ class VoucherCodeTest extends TestCase
 
     public function test_delete_voucher_code_unauthenticated(): void
     {
-        $response = $this->deleteJson('/api/voucher/1');
+        $response = $this->deleteJson($this->getApiPrefix() . '/voucher/1');
 
         $response->assertStatus(401);
     }
@@ -104,7 +104,7 @@ class VoucherCodeTest extends TestCase
         $user = User::factory()->create();
         Auth::login($user);
 
-        $response = $this->deleteJson('/api/voucher/1');
+        $response = $this->deleteJson($this->getApiPrefix() . '/voucher/1');
 
         $response->assertStatus(404);
     }

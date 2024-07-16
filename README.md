@@ -21,9 +21,10 @@
 ## Requirements
 
 - Laravel 11.x (and dependencies)
+- Laravel Sail and Horizon (optional)
 - PhpUnit (for testing) and XDebug (optional for test coverage)
 - Any DB driver (MySQL, SQLite, etc.)
-- Mailtrap or any other mail service credentials
+- Mailpit or any other mail service credentials
 
 ## Installation
 
@@ -34,6 +35,7 @@
 5. Run `php artisan key:generate` to generate the application key.
 6. Run `php artisan migrate` to create the database tables.
 7. Run `php artisan serve` to start the server.
+8. Run `php artisan queue:work` in the background to process email queues.
 8. Use Postman or any other API client to test the endpoints.
 
 ## Testing

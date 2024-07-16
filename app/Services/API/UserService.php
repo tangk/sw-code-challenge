@@ -3,6 +3,7 @@
 namespace App\Services\API;
 
 use App\Exceptions\InvalidCredentialsException;
+use App\Jobs\SendEmailJob;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
@@ -23,7 +24,7 @@ class UserService
 
         $voucherCode = $this->voucherCodeService->create();
 
-        Mail::to($user->email)->send(new WelcomeEmail($voucherCode, $user));
+        SendEmailJob::dispatch($user->email, $voucherCode, $user);
 
         return $user;
     }
